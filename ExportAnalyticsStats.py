@@ -13,7 +13,6 @@ excel_file = 'Mass weeding project - withdrawn items.xlsx'
 
 baseurl = 'https://api-na.hosted.exlibrisgroup.com'
 query = '/almaws/v1/analytics/reports?path={report}&limit=1000&col_names=true&token={token}&apikey={apikey}'
-
 df = pd.DataFrame()
 records_list = []
 cols = {}
@@ -23,8 +22,7 @@ query_num = 0
 # Get records from Analytics (into a dataframe)
 while True:
     query_num += 1
-    record_num = 0
-    query_msg = "Querying . . . " if query_num == 1 else "Continuing: Query no. " + str(query_num)
+    query_msg = "Querying . . . " if query_num == 1 else "Query no. " + str(query_num)
     print(query_msg)
     # Query the API
     r = requests.get(''.join([baseurl, query.format(report=report, token=token, apikey=apikey)]))
@@ -52,9 +50,6 @@ while True:
 
     # Read regular rows & add them to the df
     for row in rdict['report']['QueryResult']['ResultXml']['rowset']['Row']:
-        record_num += 1
-        if record_num % 100 == 0:
-            print(record_num, end=' . . . ')
         df_row = {}
         for cell in [c for c in row if (c != 'Column0' and c != 'Column31')]:
             df_row.update({cols[cell]: row[cell]})
@@ -63,9 +58,6 @@ while True:
     # Stop querying if this is the last response
     if rdict['report']['QueryResult']['IsFinished'] == 'true':
         break
-
-    print()
-print()
 
 # Create the actual df
 print('Creating dataframe.')
